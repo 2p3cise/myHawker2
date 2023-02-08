@@ -1,0 +1,40 @@
+body {
+    background: #FFF8EE;
+    font-family: "Roboto", sans-serif;
+}
+
+.coverpic {
+    opacity: 0.5;
+}
+
+.col-lg-12 {
+    text-align: center;
+}
+
+.indianheader {
+    text-align: center;
+    padding-top: 30px;
+}
+
+.indiandesc {
+    text-align: center;
+}
+
+h1 {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 35px;
+    text-align: center;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  p {
+    font-style: normal;
+    font-size: 20px;
+    text-align: center;
+  }
+
+#dishitem {
+    text-align: center;
+}
