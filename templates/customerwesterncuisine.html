@@ -12,16 +12,13 @@
 {% for dish in dishes_list %}
     {% if dish.get_cuisine() == "western" %}
     <div class="col-xl-4" id="dishitem">
-        <img src="{{ url_for('static', filename= 'images/pizza.webp')}}" height="370px" width="370px">
+        <img src="/{{ dish.get_image() }}" height="370px" width="370px">
         <h4>{{ dish.get_dish_name() }}</h4>
         <p>
             {{ dish.get_description() }}
         </p>
         <p>
             ${{ dish.get_price() }}
-        </p>
-        <p>
-            <a href="/updateDish/{{dish.get_dish_id()}}" class="btn btn-outline-primary">Update</a>
         </p>
         <form action="{{url_for('delete_dish', id=dish.get_dish_id())}}" method="POST">
             <input type="submit" value="Delete" class="btn btn-danger">

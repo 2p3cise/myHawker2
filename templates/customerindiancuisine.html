@@ -12,7 +12,7 @@
 {% for dish in dishes_list %}
     {% if dish.get_cuisine() == "indian" %}
     <div class="col-xl-4" id="dishitem">
-        <img src="{{ url_for('static', filename= 'images/chickenbriyani.png')}}" height="370px" width="370px">
+        <img src="/{{ dish.get_image() }}" height="370px" width="370px">
         <h4>{{ dish.get_dish_name() }}</h4>
         <p>
             {{ dish.get_description() }}

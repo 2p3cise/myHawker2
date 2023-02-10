@@ -3,14 +3,13 @@
 
 {% block content %}
 <div class="row gy-5">
-    <div class="indianheader"><img src="{{ url_for('static', filename= 'images/indiancuisine.png')}}" height="200px" width="300px"></div>
+    <div class="indianheader"><img src="{{ url_for('static', filename= 'images/mixedrice.png')}}" height="200px" width="300px"></div>
     <p class="indiandesc">
-        From Bombay to Bangladesh we bring you the finest of the finest Indian cuisine here.
-        We have a Michelin starred Indian chef working his magic here. He revives the ancient art of Indian cuisine as he manages the three outlets of myHawker.
-        The Indian cuisine attracts hundreds over hundreds of orders a day and is the talk of Singapore nowadays.
+        Originating from Singapore and Malaysia, this is the mixed rice which we like to indulge in as it gives a sense of home cooked food. 
+        Customers are able to choose from a list of 15 dishes including but not limited to various types of meat, vegetables, eggs and tofu dishes.
     </p>
 {% for dish in dishes_list %}
-    {% if dish.get_cuisine() == "indian" %}
+    {% if dish.get_cuisine() == "mixedrice" %}
     <div class="col-xl-4" id="dishitem">
         <img src="/{{ dish.get_image() }}" height="370px" width="370px">
         <h4>{{ dish.get_dish_name() }}</h4>

@@ -5,7 +5,7 @@
 
 <h6 class="display-6" align="middle">Create Dish</h6>
 
-<form method="POST" action="">
+<form method="post" enctype="multipart/form-data">
   <div class="form-group">
     {{ render_field(form.dish_name, class="form-control") }}
   </div>
@@ -21,8 +21,7 @@
     </div>  
   </div>
   <div class="mb-3">
-    <label for="formFile" class="form-label">Please put the image file in here</label>
-    <input class="form-control" type="file" id="formFile">
+    {{ render_field(form.image, class="form-control") }}
   </div>
   <input type="submit" value="Submit" class="btn btn-primary"/>
   
