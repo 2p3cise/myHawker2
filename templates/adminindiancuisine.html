@@ -10,6 +10,7 @@
         The Indian cuisine attracts hundreds over hundreds of orders a day and is the talk of Singapore nowadays.
     </p>
 {% for dish in dishes_list %}
+    {% if dish.get_cuisine() == "indian" %}
     <div class="col-xl-4" id="dishitem">
         <img src="{{ url_for('static', filename= 'images/chickenbriyani.png')}}" height="370px" width="370px">
         <h4>{{ dish.get_dish_name() }}</h4>
@@ -26,6 +27,7 @@
             <input type="submit" value="Delete" class="btn btn-danger">
         </form>
     </div>
+    {% endif %}
 {% endfor %}
 </div>
 {% endblock %}

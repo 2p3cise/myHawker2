@@ -19,6 +19,8 @@
         <th>Dish's ID</th>
         <th>Dish Name</th>
         <th>Price</th>
+        <th>description</th>
+        <th>Cuisine</th>
         <th></th>
         <th></th>
       </tr>
@@ -26,12 +28,13 @@
     <tbody>
     {% for dish in dishes_list %}
      <tr>
-        <td>{{ dish.get_customer_id() }}</td>
-        <td>{{ dish.get_customer_name() }}</td>
-        <td>${{ dish.get_password() }}</td>
-        <td><a href="/updateCustomer/{{customer.get_customer_id()}}" class="btn btn-outline-primary">Update</a></td>
-        <td>
-          <form action="{{url_for('delete_customer', id=customer.get_customer_id())}}" method="POST">
+        <td>{{ dish.get_dish_id() }}</td>
+        <td>{{ dish.get_dish_name() }}</td>
+        <td>${{ dish.get_price() }}</td>
+        <td>{{ dish.get_description() }}</td>
+        <td>{{ dish.get_cuisine() }}</td>
+        <td><a href="/updateDish/{{dish.get_dish_id()}}" class="btn btn-outline-primary">Update</a></td>
+        <td><form action="{{url_for('delete_dish', id=dish.get_dish_id())}}" method="POST">
             <input type="submit" value="Delete" class="btn btn-danger">
           </form>
         </td>

@@ -24,7 +24,7 @@ def create_dish():
         except:
             print("Error in retrieving Users from dish.db")
 
-        dish = Dishes.Dish(create_dish_form.dish_name.data, create_dish_form.price.data, create_dish_form.description.data)
+        dish = Dishes.Dish(create_dish_form.dish_name.data, create_dish_form.price.data, create_dish_form.description.data, create_dish_form.cuisine.data)
         dishes_dict[dish.get_dish_id()] = dish
         db['Dishes'] = dishes_dict
 
@@ -61,6 +61,7 @@ def update_dish(id):
         dish.set_dish_name(update_dish_form.dish_name.data)
         dish.set_price(update_dish_form.price.data)
         dish.set_description(update_dish_form.description.data)
+        dish.set_cuisine(update_dish_form.cuisine.data)
 
         db['Dishes'] = dishes_dict
         db.close()
@@ -76,6 +77,7 @@ def update_dish(id):
         update_dish_form.dish_name.data = dish.get_dish_name()
         update_dish_form.price.data = dish.get_price()
         update_dish_form.description.data = dish.get_description()
+        update_dish_form.cuisine.data = dish.get_cuisine()
 
         return render_template('updateDish.html', form=update_dish_form)
 
@@ -90,9 +92,19 @@ def delete_dish(id):
     db.close()
     return redirect(url_for('retrieve_dishes'))
 
+@app.route('/addtocart/<int:id>', methods=['POST'])
+def add_to_cart(id):
+    dishes_dict = {}
+    db = shelve.open('dish.db', 'w')
+    dishes_dict = db['Dishes']
+    dishes_dict.pop(id)
+    db['Dishes'] = dishes_dict
+    db.close()
+    return redirect(url_for('retrieve_dishes'))
 
-@app.route('/indiancuisine')
-def indian_cuisine():
+
+@app.route('/adminindiancuisine')
+def adminindian_cuisine():
     dishes_dict = {}
     db = shelve.open('dish.db', 'r')
     dishes_dict = db['Dishes']
@@ -103,7 +115,21 @@ def indian_cuisine():
         dish = dishes_dict.get(key)
         dishes_list.append(dish)
 
-    return render_template('indiancuisine.html', count=len(dishes_list), dishes_list=dishes_list)
+    return render_template('adminindiancuisine.html', count=len(dishes_list), dishes_list=dishes_list)
+
+@app.route('/customerindiancuisine')
+def customerindian_cuisine():
+    dishes_dict = {}
+    db = shelve.open('dish.db', 'r')
+    dishes_dict = db['Dishes']
+    db.close()
+
+    dishes_list = []
+    for key in dishes_dict:
+        dish = dishes_dict.get(key)
+        dishes_list.append(dish)
+
+    return render_template('customerindiancuisine.html', count=len(dishes_list), dishes_list=dishes_list)
 
 @app.route('/westerncuisine')
 def western_cuisine():

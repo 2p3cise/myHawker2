@@ -10,6 +10,7 @@
         unique, youthful and uplifting taste that can only be brought possible by teenagers.
     </p>
 {% for dish in dishes_list %}
+    {% if dish.get_cuisine() == "western" %}
     <div class="col-xl-4" id="dishitem">
         <img src="{{ url_for('static', filename= 'images/pizza.webp')}}" height="370px" width="370px">
         <h4>{{ dish.get_dish_name() }}</h4>
@@ -26,6 +27,7 @@
             <input type="submit" value="Delete" class="btn btn-danger">
         </form>
     </div>
+    {% endif %}   
 {% endfor %}
 </div>
 {% endblock %}
