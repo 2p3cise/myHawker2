@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from Forms import CreateDishForm, CreateCustomerForm, LoginForm
-import shelve, Dishes, Customers
+from models.Forms import CreateDishForm, CreateCustomerForm, LoginForm
+import shelve, models.Dishes as Dishes, models.Customers as Customers
 import os
 from werkzeug.utils import secure_filename
 
@@ -263,6 +263,7 @@ def login():
         db.close()
     return render_template('login.html', form=login_form, error=error)
 
+
 #Nicholas
 @app.route('/createCustomer', methods=['GET', 'POST'])
 def create_customer():
@@ -274,29 +275,18 @@ def create_customer():
         try:
             customers_dict = db['Customers']
         except:
-            print("Error in retrieving Customers from customer.db.")
+            print("Error in retrieving Customers from customer.db")
 
-        customer = Customers.Customer(create_customer_form.first_name.data, create_customer_form.last_name.data,
-                                     create_customer_form.gender.data, create_customer_form.membership.data,
-                                     create_customer_form.remarks.data, create_customer_form.email.data,
+        c1 = Customers.Customer(create_customer_form.first_name.data, create_customer_form.last_name.data,
+                                     create_customer_form.gender.data, create_customer_form.email.data,
                                      create_customer_form.date_joined.data, create_customer_form.address.data,
                                      create_customer_form.password.data)
-        customers_dict[customer.get_user_id()] = customer
+        customers_dict[c1.get_customer_id()] = c1
         db['Customers'] = customers_dict
 
         db.close()
 
-        db = shelve.open('user_credentials.db', 'c')
-        try:
-            user_credentials = db['user_credentials']
-        except:
-            user_credentials = {}
-
-        user_credentials[create_customer_form.email.data] = create_customer_form.password.data
-        db['user_credentials'] = user_credentials
-        db.close()
-
-        return redirect(url_for('retrieve_customers'))
+        return redirect(url_for('home'))
     return render_template('createCustomer.html', form=create_customer_form)
 
 #Nicholas
@@ -324,16 +314,17 @@ def update_customer(id):
         customers_dict = db['Customers']
 
         customer = customers_dict.get(id)
-        customer.set_date_joined(update_customer_form.date_joined.data)
+        customer.set_first_name(update_customer_form.first_name.data)
+        customer.set_last_name(update_customer_form.last_name.data)
+        customer.set_gender(update_customer_form.gender.data)
+        customer.set_email(update_customer_form.email.data)
         customer.set_address(update_customer_form.address.data)
-        customer.set_membership(update_customer_form.membership.data)
         customer.set_password(update_customer_form.password.data)
-        customer.set_remarks(update_customer_form.remarks.data)
 
         db['Customers'] = customers_dict
         db.close()
 
-        return redirect(url_for('retrieve_dishes'))
+        return redirect(url_for('retrieve_customers'))
 
     else:
         customers_dict = {}
@@ -342,33 +333,26 @@ def update_customer(id):
         db.close()
 
         customer = customers_dict.get(id)
-        update_customer_form.date_joined.data = Customers.get_date_joined()
-        update_customer_form.address.data = Customers.get_address()
-        update_customer_form.membership.data = Customers.get_membership()
-        update_customer_form.password.data = Customers.get_password()
-        update_customer_form.remarks.data = Customers.get_remarks()
+        update_customer_form.first_name.data = customer.get_first_name()
+        update_customer_form.last_name.data = customer.get_last_name()
+        update_customer_form.gender.data = customer.get_gender()
+        update_customer_form.email.data = customer.get_email()
+        update_customer_form.address.data = customer.get_address()
+        update_customer_form.password.data = customer.get_password()
 
         return render_template('updateCustomer.html', form=update_customer_form)
 
 
 #Nicholas
 @app.route('/deleteCustomer/<int:id>/<email>', methods=['POST'])
-def delete_customer(id, email):
+def delete_customer(id):
     customers_dict = {}
     db = shelve.open('customer.db', 'w')
     customers_dict = db['Customers']
     customers_dict.pop(id)
-
     db['Customers'] = customers_dict
     db.close()
 
-    user_credentials = {}
-    db = shelve.open('user_credentials.db', 'w')
-    user_credentials = db['user_credentials']
-    user_credentials.pop(email)
-
-    db['user_credentials'] = user_credentials
-    db.close()
 
     return redirect(url_for('retrieve_customers'))
 

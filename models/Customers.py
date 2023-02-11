@@ -1,18 +1,22 @@
 #Nicholas
-import User
 import shelve
 
 
-class Customer(User.User):
-    def __init__(self, first_name, last_name, gender, membership, remarks, email, date_joined, address, password):
-        super().__init__(first_name, last_name, gender, membership, remarks)
+class Customer:
+    count_id = None
+
+    def __init__(self, first_name, last_name, gender, email, date_joined, address, password):
         with shelve.open("counter", writeback=True) as counter:
-            if "customer" not in counter:
+            if "customers" not in counter:
                 id = 1
             else:
-                id = counter["customer"] + 1
-            counter["customer"] = id
+                id = counter["customers"] + 1
+            
+            counter["customers"] = id
         self.__customer_id = id
+        self.__first_name = first_name
+        self.__last_name = last_name
+        self.__gender = gender
         self.__email = email
         self.__date_joined = date_joined
         self.__address = address
@@ -21,6 +25,15 @@ class Customer(User.User):
     # accessor methods
     def get_customer_id(self):
         return self.__customer_id
+    
+    def get_first_name(self):
+        return self.__first_name
+
+    def get_last_name(self):
+        return self.__last_name
+
+    def get_gender(self):
+        return self.__gender
 
     def get_email(self):
         return self.__email
@@ -35,8 +48,18 @@ class Customer(User.User):
         return self.__password
 
     # mutator methods
+    
     def set_customer_id(self, customer_id):
         self.__customer_id = customer_id
+
+    def set_first_name(self, first_name):
+        self.__first_name = first_name
+
+    def set_last_name(self, last_name):
+        self.__last_name = last_name
+
+    def set_gender(self, gender):
+        self.__gender = gender
 
     def set_email(self, email):
         self.__email = email
