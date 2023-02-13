@@ -1,11 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from models.Forms import CreateDishForm, CreateCustomerForm, LoginForm
 import shelve, models.Dishes as Dishes, models.Customers as Customers
 import os
 from werkzeug.utils import secure_filename
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = "abc123"
+app.permanent_session_lifetime = timedelta(minutes=5)
 
 @app.route('/')
 def home():
@@ -121,12 +123,25 @@ def delete_dish(id):
 @app.route('/addtocart/<int:id>', methods=['POST'])
 def add_to_cart(id):
     dishes_dict = {}
-    db = shelve.open('dish.db', 'w')
+    db = shelve.open('dish.db', 'r')
     dishes_dict = db['Dishes']
-    dishes_dict.pop(id)
-    db['Dishes'] = dishes_dict
     db.close()
-    return redirect(url_for('retrieve_dishes'))
+
+    dishes_list = []
+    for key in dishes_dict:
+        dish = dishes_dict.get(key)
+        dishes_list.append(dish)
+
+    return render_template('retrieveDish.html', count=len(dishes_list), dishes_list=dishes_list)
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/adminindiancuisine')
@@ -239,12 +254,12 @@ def customermixedrice():
 
 
 
-#Nicholas
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm(request.form)
     error = None
     if request.method == 'POST' and login_form.validate():
+        session.permanent = True
         email = login_form.email.data
         password = login_form.password.data
         db = shelve.open('user_credentials.db', 'c')
@@ -256,6 +271,7 @@ def login():
 
         if email in user_credentials and user_credentials[email] == password:
             session['email'] = email
+            flash('Login successful')
             return redirect(url_for('home'))
         else:
             error = 'Invalid username or password. Please try again.'
@@ -263,8 +279,13 @@ def login():
         db.close()
     return render_template('login.html', form=login_form, error=error)
 
+@app.route('/logout')
+def logout():
+    flash('You have been logged out', 'info')
+    session.pop('email', None)
+    return redirect(url_for('login'))
 
-#Nicholas
+
 @app.route('/createCustomer', methods=['GET', 'POST'])
 def create_customer():
     create_customer_form = CreateCustomerForm(request.form)
@@ -289,7 +310,8 @@ def create_customer():
         return redirect(url_for('home'))
     return render_template('createCustomer.html', form=create_customer_form)
 
-#Nicholas
+
+
 @app.route('/adminretrieveCustomer')
 def retrieve_customers():
     customers_dict = {}
@@ -304,7 +326,9 @@ def retrieve_customers():
 
     return render_template('adminretrieveCustomer.html', count=len(customers_list), customers_list=customers_list)
 
-#Nicholas 
+
+
+
 @app.route('/updateCustomer/<int:id>/', methods=['GET', 'POST'])
 def update_customer(id):
     update_customer_form = CreateCustomerForm(request.form)
@@ -343,7 +367,8 @@ def update_customer(id):
         return render_template('updateCustomer.html', form=update_customer_form)
 
 
-#Nicholas
+
+
 @app.route('/deleteCustomer/<int:id>/<email>', methods=['POST'])
 def delete_customer(id):
     customers_dict = {}
