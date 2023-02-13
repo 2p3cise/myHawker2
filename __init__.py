@@ -1,9 +1,22 @@
+
+import os
+import shelve
+import smtplib
+import ssl
+import shelve, models.Dishes as Dishes, models.Customers as Customers
+
+from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from models.Forms import CreateDishForm, CreateCustomerForm, LoginForm
-import shelve, models.Dishes as Dishes, models.Customers as Customers
-import os
+from datetime import datetime
+from email.message import EmailMessage
 from werkzeug.utils import secure_filename
 from datetime import timedelta
+from models.Credit import Credit
+from models.Dishes import Dish
+from models.Forms import CreateVoucherForm, CreateDishForm, LoginForm, CreateCustomerForm, FeedbackForm, PurchaseInfo
+from models.Vouchers import Vouchers
+from models.Cart import Cart
 
 app = Flask(__name__)
 app.secret_key = "abc123"
@@ -380,6 +393,223 @@ def delete_customer(id):
 
 
     return redirect(url_for('retrieve_customers'))
+
+
+
+
+
+# ---------------------------------------------------Ryan Code-----------------------------------------------------------   
+
+
+# Ryan
+@app.route('/shoppingCart')
+def shoppingCart():
+    return render_template('shoppingCart.html')
+
+
+# Ryan
+@app.route('/gachaPage', methods=['GET', 'POST'])
+def gachaPage():
+    return render_template('gachaPage.html')
+
+
+# Ryan
+@app.route('/purchaseConfirmationPage.html', methods=['GET', 'POST'])
+def purchaseConfirmationPage():
+    purchase_info_form = PurchaseInfo(request.form)
+    if request.method == 'POST' and purchase_info_form.validate():
+        try:
+            with shelve.open('info.db', 'c') as db:
+                info_dict = {}
+                if 'Info' in db:
+                    info_dict = db['Info']
+                info = Credit(purchase_info_form.credit_card_num.data, purchase_info_form.cvc.data,
+                              purchase_info_form.expiry_date.data)
+                db['Voucher'] = info_dict
+        except IOError:
+            print("Error in getting ccnum from credit.db.")
+        return redirect(url_for('purchaseConfirmationPage'))
+    else:
+        return render_template('purchaseConfirmationPage.html', form=purchase_info_form)
+
+
+# Ryan
+@app.route('/gachaPage/<discount>', methods=['GET', 'POST'])
+def add_voucher_amount(discount):
+    year = datetime.now().year
+    month = datetime.now().month
+    day = datetime.now().day
+    try:
+        with shelve.open('voucher.db', 'c') as db:
+            voucher_dict = {}
+            if 'Voucher' in db:
+                voucher_dict = db['Voucher']
+            voucher = Vouchers('GachaVouch', discount, datetime(year + 1, month, day))
+            voucher_dict[voucher.get_id()] = voucher
+            db['Voucher'] = voucher_dict
+    except IOError:
+        print("Error in adding vouchers from voucher.db.")
+    return redirect(url_for('display_voucher'))
+
+
+# Ryan
+@app.route('/purchaseConfirmationPage')
+def send_mail():
+    sender = 'chengjunrl003@gmail.com'
+    password = 'egzxivljnordndte'
+    receiver = ['ryanlaicj@gmail.com']
+    subject = 'Order Received'
+    message = """The Order Has Been Received!
+Thank you for ordering with myHawker :D
+    """
+    em = EmailMessage()
+    em['Form'] = sender
+    em['To'] = receiver
+    em['Subject'] = subject
+    em.set_content(message)
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(sender, password)
+        smtp.sendmail(sender, receiver, em.as_string())
+
+    return redirect(url_for('home'))
+
+
+# Ryan
+@app.route('/staffCreateVoucher', methods=['GET', 'POST'])
+def create_voucher():
+    create_voucher_form = CreateVoucherForm(request.form)
+    if request.method == 'POST' and create_voucher_form.validate():
+        try:
+            with shelve.open('voucher.db', 'c') as db:
+                voucher_dict = {}
+                if 'Voucher' in db:
+                    voucher_dict = db['Voucher']
+                voucher = Vouchers(create_voucher_form.code.data, create_voucher_form.discount.data,
+                                   create_voucher_form.expiry_date.data)
+                voucher_dict[voucher.get_id()] = voucher
+                db['Voucher'] = voucher_dict
+        except IOError:
+            print("Error in creating vouchers from voucher.db.")
+        return redirect(url_for('display_voucher'))
+    else:
+        return render_template('staffCreateVoucher.html', form=create_voucher_form)
+
+
+# Ryan
+@app.route('/voucherPage')
+def display_voucher():
+    voucher_list = []
+    try:
+        with shelve.open('voucher.db', 'r') as db:
+            voucher_dict = {}
+            if 'Voucher' in db:
+                voucher_dict = db['Voucher']
+            for key in voucher_dict:
+                voucher = voucher_dict.get(key)
+                voucher_list.append(voucher)
+    except IOError:
+        print(f"Error in displaying voucher from voucher.db.")
+
+    return render_template('voucherPage.html', count=len(voucher_list), voucher_list=voucher_list)
+
+
+# Ryan
+@app.route('/deleteVoucher/<int:id>', methods=['POST'])
+def delete_voucher(id):
+    db = shelve.open('voucher.db', 'w')
+    voucher_dict = db['Voucher']
+
+    voucher_dict.pop(id)
+
+    db['Voucher'] = voucher_dict
+    db.close()
+
+    return redirect(url_for('display_voucher'))
+
+
+# Ryan
+@app.route('/staffEditVoucher/<int:id>/', methods=['GET', 'POST'])
+def edit_voucher(id):
+    edit_voucher_form = CreateVoucherForm(request.form)
+    if request.method == 'POST' and edit_voucher_form.validate():
+        voucher_dict = {}
+        db = shelve.open('voucher.db', 'w')
+        voucher_dict = db['Voucher']
+
+        voucher = voucher_dict.get(id)
+        voucher.set_code(edit_voucher_form.code.data)
+        voucher.set_discount(edit_voucher_form.discount.data)
+        voucher.set_expiry_date(edit_voucher_form.expiry_date.data)
+
+        db['Voucher'] = voucher_dict
+        db.close()
+
+        return redirect(url_for('display_voucher'))
+    else:
+        voucher_dict = {}
+        db = shelve.open('voucher.db', 'r')
+        voucher_dict = db['Voucher']
+        db.close()
+
+        voucher = voucher_dict.get(id)
+        edit_voucher_form.code.data = voucher.get_code()
+        edit_voucher_form.discount.data = voucher.get_discount()
+        edit_voucher_form.expiry_date.data = voucher.get_expiry_date()
+
+    return render_template('staffEditVoucher.html', form=edit_voucher_form)
+
+
+# Ryan
+@app.route('/customerindiancuisine.html/<int:id>/', methods=['GET', 'POST'])
+def add_to_cart(id):
+    cart_list = []
+    try:
+        with shelve.open('cart.db', 'w') as db:
+            with shelve.open('dish.db', 'w') as db2:
+                db[id] = db2
+                Cart.set_dish_id().data = Dish.get_dish_id().data
+                Cart.set_price().data = Dish.get_dish_id().data
+    except IOError:
+        print(f"Error in getting dish from cart.db.")
+
+    return render_template('shoppingCart.html', count=len(cart_list), dishes_list=cart_list)
+
+
+# Ryan
+@app.route('/shoppingCart/<int:id>', methods=['POST'])
+def delete_item_cart(id):
+    db = shelve.open('cart.db', 'w')
+    cart_dict = db['Cart']
+
+    cart_dict.pop(id)
+
+    db['Voucher'] = cart_dict
+    db.close()
+
+    return redirect(url_for('shoppingCart.html'))
+
+
+# Ryan
+@app.route('/shoppingCart', methods=['GET', 'POST'])
+def display_cart():
+    cart_list = []
+    try:
+        with shelve.open('cart.db', 'r') as db:
+            cart_dict = {}
+            if 'Cart' in db:
+                cart_dict = db['Cart']
+            for key in 'Cart':
+                cart = cart_dict.get(key)
+                cart_list.append(cart)
+    except IOError:
+        print(f"Error in getting dish from cart.db.")
+
+    return render_template('shoppingCart.html', count=len(cart_list), dishes_list=cart_list)
+
+# --------------------------------------------------------------------------------------------------------------   
+
 
 
 

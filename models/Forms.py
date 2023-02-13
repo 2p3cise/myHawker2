@@ -36,3 +36,24 @@ class CreateCustomerForm(Form):
     date_joined = DateField('Date Joined', format='%Y-%m-%d')
     address = TextAreaField('Home Address', [validators.length(max=200), validators.DataRequired()])
     password = StringField('Password', [validators.Length(min=1, max=150), validators.DataRequired()])
+
+# ---------------------------------------------------Ryan Code-----------------------------------------------------------   
+
+# Ryan
+class CreateVoucherForm(Form):
+    code = StringField('Code', [validators.Length(min=1, max=10), validators.DataRequired()])
+    discount = IntegerField('Discount', [validators.NumberRange(min=1, max=100), validators.DataRequired()])
+    expiry_date = DateField('Expiry Date', format='%Y-%m-%d')
+
+    submit = SubmitField("Add Coupon")
+
+    
+# Ryan
+class PurchaseInfo(Form):
+    credit_card_num = StringField('Credit Card Number', [validators.Length(min=16, max=16), validators.DataRequired('Please Enter 16 Digits')])
+    cvc = StringField('CVC', [validators.Length(min=3, max=3), validators.DataRequired('Please Enter 3 Digits')])
+    expiry_date = DateField('Expiry Date', format='%Y-%m-%d')
+    
+# --------------------------------------------------------------------------------------------------------------   
+    
+    
