@@ -1,0 +1,50 @@
+<!--Ryan-->
+{% extends "base.html" %}
+{% block title %}Gacha{% endblock %}
+{% block content %}
+{% from "includes/formHelper.html" import render_field %}
+
+<body onload="doShowAll()">
+	<h2>Shopping Cart</h2>
+	<p>Add Products and quantity to your shopping cart. </p>
+	<form name=ShoppingList>
+
+		<div id="main">
+			<table>
+				<tr>
+
+					<td><b>Products:</b><input type=text name=name></td>
+					<td><b>Quantity:</b><input type=text name=data></td>
+
+				</tr>
+
+				<tr>
+					<td>
+					    <input type=button value="Save"   onclick="SaveItem()">
+					    <input type=button value="Update" onclick="ModifyItem()">
+					    <input type=button value="Delete" onclick="RemoveItem()">
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="items_table">
+			<h3>Shopping List</h3>
+			<table id=list></table>
+			<p>
+				<label><input type=button value="Clear" onclick="ClearAll()">
+					<i>* Delete all items</i></label>
+			</p>
+		</div>
+	</form>
+</body>
+
+    <a href="purchaseConfirmationPage.html">
+        <button class="btn btn-primary">Purchase</button>
+    </a>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='gacha/cartScript.js') }}"></script>
+{% endblock %}
