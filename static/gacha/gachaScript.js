@@ -1,0 +1,93 @@
+//Ryan
+const wheel = document.getElementById("wheel");
+const spinBtn = document.getElementById("spin-btn");
+const addVoucherBtn = document.getElementById("add-voucher")
+const finalValue = document.getElementById("final-value");
+var discount = 0
+const rotationValues = [
+  { minDegree: 0, maxDegree: 30, value: 15 },
+  { minDegree: 31, maxDegree: 90, value: 10 },
+  { minDegree: 91, maxDegree: 150, value: 5 },
+  { minDegree: 151, maxDegree: 210, value: 35 },
+  { minDegree: 211, maxDegree: 270, value: 30 },
+  { minDegree: 271, maxDegree: 330, value: 25 },
+  { minDegree: 331, maxDegree: 360, value: 15 },
+];
+const data = [16, 16, 16, 16, 16, 16];
+var pieColors = [
+  "red",
+  "orange",
+  "#C4D42B",
+  "green",
+  "blue",
+  "purple",
+];
+
+let myChart = new Chart(wheel, {
+  plugins: [ChartDataLabels],
+  type: "pie",
+  data: {
+    labels: [10, 15, 25, 30, 35, 5],
+    datasets: [
+      {
+        backgroundColor: pieColors,
+        data: data,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    animation: { duration: 0 },
+    plugins: {
+      tooltip: false,
+      legend: {
+        display: false,
+      },
+      datalabels: {
+        color: "#ffffff",
+        formatter: (_, context) => context.chart.data.labels[context.dataIndex],
+        font: { size: 24 },
+      },
+    },
+  },
+});
+const valueGenerator = (angleValue) => {
+  for (let i of rotationValues) {
+    if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
+      finalValue.innerHTML = `<p>You have won a ${i.value}% discount</p>`;
+      discount = i.value
+      spinBtn.disabled = false;
+      break;
+    }
+  }
+};
+let count = 0;
+let resultValue = 101;
+spinBtn.addEventListener("click", () => {
+  spinBtn.disabled = true;
+
+  finalValue.innerHTML = `<p>Good Luck!</p>`;
+  let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
+  let rotationInterval = window.setInterval(() => {
+    myChart.options.rotation = myChart.options.rotation + resultValue;
+    myChart.update();
+    if (myChart.options.rotation >= 360) {
+      count += 1;
+      resultValue -= 5;
+      myChart.options.rotation = 0;
+    } else if (count > 15 && myChart.options.rotation == randomDegree) {
+      valueGenerator(randomDegree);
+      clearInterval(rotationInterval);
+      count = 0;
+      resultValue = 101;
+    }
+  }, 10);
+});
+
+addVoucherBtn.addEventListener("click", () => {
+    if (discount == 0) {
+        alert("You need to spin the wheel")
+    } else {
+        window.location.href = "gachaPage/" + discount
+    }
+})
