@@ -37,6 +37,8 @@ class CreateCustomerForm(Form):
     address = TextAreaField('Home Address', [validators.length(max=200), validators.DataRequired()])
     password = StringField('Password', [validators.Length(min=1, max=150), validators.DataRequired()])
 
+# ---------------------------------------------------Ryan Code-----------------------------------------------------------   
+
 # Ryan
 class CreateVoucherForm(Form):
     code = StringField('Code', [validators.Length(min=1, max=10), validators.DataRequired()])
@@ -51,5 +53,7 @@ class PurchaseInfo(Form):
     credit_card_num = StringField('Credit Card Number', [validators.Length(min=16, max=16), validators.DataRequired('Please Enter 16 Digits')])
     cvc = StringField('CVC', [validators.Length(min=3, max=3), validators.DataRequired('Please Enter 3 Digits')])
     expiry_date = DateField('Expiry Date', format='%Y-%m-%d')
+    
+# --------------------------------------------------------------------------------------------------------------   
     
     
