@@ -44,3 +44,12 @@ class CreateVoucherForm(Form):
     expiry_date = DateField('Expiry Date', format='%Y-%m-%d')
 
     submit = SubmitField("Add Coupon")
+
+    
+# Ryan
+class PurchaseInfo(Form):
+    credit_card_num = StringField('Credit Card Number', [validators.Length(min=16, max=16), validators.DataRequired('Please Enter 16 Digits')])
+    cvc = StringField('CVC', [validators.Length(min=3, max=3), validators.DataRequired('Please Enter 3 Digits')])
+    expiry_date = DateField('Expiry Date', format='%Y-%m-%d')
+    
+    
